@@ -4,13 +4,16 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    user = dict()
+    """user = dict()
     user["name"] = "Furkan"
     user["surname"] = "YILDIZ"
     user["age"] = 23
     user["nick"] = "Punisher"
 
     return render_template('index.html', user=user)
+    """
+
+    return render_template('index.html')
 
 @app.route("/about")
 def about():
