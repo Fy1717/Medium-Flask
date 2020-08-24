@@ -1,1 +1,38 @@
-{% extends "layout.html" %} {% block title%} INDEX {% endblock %}
+{% extends "layout.html" %}
+{% block body %}
+<div class="jumbotron text-center">
+    <h3>Anasayfa</h3>
+    <p>Eğitimcilerimizin Yazılarını Paylaşabilecekleri Bir Platform</p>
+</div>
+
+<hr>
+<h5>Merhaba</h5>
+<br>
+<p>Hello World ailesi olarak yaklaşık 1,5 yıldır youtube, linkedin, instagram gibi mecralarda kendi eğiimlerimizi
+    paylaşmaya çalışıyoruz.</p>
+<p>Bu eğitimlerin içerikleri sizlerin talepleri doğrultusunda şekilleniyor.</p>
+<hr>
+<h5> Eğitimlerimiz </h5>
+
+<ul>
+    {% for education in educations %}
+        <li>{{education}}</li>
+    {% endfor %}
+</ul>
+
+<hr>
+<h5>YAZARLAR</h5>
+<ul>
+    {% for instructor in instructors %}
+        <li>{{ instructor.id }} - {{ instructor.name }} | {{instructor.profession}}</li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<footer id="sticky-footer" class="py-4 bg-dark text-white-50">
+    <div class="container text-center">
+        <small>Copyright &copy; FY</small>
+    </div>
+</footer>
+{% endblock %}
