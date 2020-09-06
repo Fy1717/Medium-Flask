@@ -24,10 +24,10 @@ class RegisterForm(Form):
 app = Flask(__name__)
 
 # ------------------------------------------ MYSQL CONNECTION -----------------------------------------------------
-app.config["MYSQL_HOST"] = "localhost"
-app.config["MYSQL_USER"] = "root"
-app.config["MYSQL_PASSWORD"] = ""
-app.config["MYSQL_DB"] = "hwblog"
+app.config["MYSQL_HOST"] = "frknyldz.site"
+app.config["MYSQL_USER"] = "frknyldz21_fy"
+app.config["MYSQL_PASSWORD"] = "furkan123."
+app.config["MYSQL_DB"] = "frknyldz21_hwblog"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
@@ -80,9 +80,9 @@ def register():
         name = form.name.data
         username = form.username.data
         email = form.email.data
-        password = sha256_crypt.encrypt(form.password.data)
+        password = form.password.data
 
-        ''' cursor = mysql.connection.cursor()
+        cursor = mysql.connection.cursor()
 
         sorgu = "Insert into users(name, email, username, password) VALUES(%s, %s, %s, %s)"
 
@@ -90,9 +90,7 @@ def register():
 
         mysql.connection.commit()
 
-        cursor.close()'''
-
-        print('------>>>>>' + cursor)
+        cursor.close()
 
         return redirect(url_for("index"))
     else:
