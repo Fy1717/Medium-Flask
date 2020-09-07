@@ -21,7 +21,14 @@ class RegisterForm(Form):
     confirm = PasswordField("Parola Doğrula")
 # -----------------------------------------------------------------------------------------------------------------
 
+# ------------------------------------------  LOGIN FORM -------------------------------------------------------
+class LoginForm(Form):
+    username = StringField("Kullanıcı Adı")
+    password = PasswordField("Parola")
+# -----------------------------------------------------------------------------------------------------------------
+
 app = Flask(__name__)
+app.secret_key = "hwblog"
 
 # ------------------------------------------ MYSQL CONNECTION -----------------------------------------------------
 app.config["MYSQL_HOST"] = "frknyldz.site"
@@ -92,15 +99,48 @@ def register():
 
         cursor.close()
 
-        return redirect(url_for("index"))
+        flash("KAYIT BAŞARILI..", "success")
+
+        return redirect(url_for("login"))
     else:
         return render_template("register.html", form = form)
 # -----------------------
 
 # LOGIN -----------------
-@app.route("/login")
+@app.route("/login", methods = ["GET", "POST"])
 def login():
-    return render_template("login.html")
+    form = LoginForm(request.form)
+
+    if request.method == "POST":
+        username = form.username.data
+        password = form.password.data
+
+        cursor = mysql.connection.cursor()
+
+        sorgu = "Select * From users where username = %s"
+
+        result = cursor.execute(sorgu, (username,))
+
+        if result > 0:
+            data = cursor.fetchone()
+            real_password = data["password"]
+
+            if password == real_password:
+                flash("Giriş Başarılı..", "success")
+                
+                return redirect(url_for("index"))
+            else:
+                flash("Kullanıcı Bilgilerini Kontrol Ediniz..", "danger")
+
+                return redirect(url_for("login"))
+
+        else:
+            flash("Kullanıcı Bulunamadı..", "danger")
+
+            return redirect(url_for("login"))
+
+
+    return render_template("login.html", form = form)
 # -----------------------
 
 # EDUCATIONS ------------
