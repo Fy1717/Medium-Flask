@@ -7,6 +7,7 @@ from flask import Flask, render_template, flash, redirect, url_for, session, log
 from flask_mysqldb import MySQL
 from wtforms import Form, BooleanField, StringField, PasswordField, validators
 from passlib.hash import sha256_crypt
+from functools import wraps
 # -----------------------------------------------------------------------------------------------------------------
 
 
@@ -72,6 +73,18 @@ def index():
     return render_template("index.html", instructors=instructors, educations=educations)
 # -----------------------
 
+# LOGIN DECORATOR -------
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "logged_in" in session:
+            return f(*args, **kwargs)
+        else:
+            flash("Öncelikle giriş yapmanız gerekiyor", "danger")
+            return redirect(url_for("login"))
+    
+    return decorated_function
+
 # ABOUT -----------------
 @app.route("/about")
 def about():
@@ -116,7 +129,6 @@ def login():
         password = form.password.data
 
         cursor = mysql.connection.cursor()
-
         sorgu = "Select * From users where username = %s"
 
         result = cursor.execute(sorgu, (username,))
@@ -127,6 +139,9 @@ def login():
 
             if password == real_password:
                 flash("Giriş Başarılı..", "success")
+
+                session["logged_in"] = True
+                session["username"] = username
                 
                 return redirect(url_for("index"))
             else:
@@ -141,6 +156,21 @@ def login():
 
 
     return render_template("login.html", form = form)
+# -----------------------
+
+# LOGOUT ----------------
+@app.route("/logout")
+def logout():
+    session.clear()
+
+    return redirect(url_for("index"))
+# -----------------------
+
+# DASHBOARD -------------
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html")
 # -----------------------
 
 # EDUCATIONS ------------
