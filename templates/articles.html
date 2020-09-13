@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="jumbotron text-center">
+    <h3>Anasayfa</h3>
+    <p>Eğitimcilerimizin Yazılarını Paylaşabilecekleri Bir Platform</p>
+</div>
+
+<h5>MAKALELER</h5>
+<hr>
+
+{% if articles %}
+
+<ul class="list-group">
+    {% for articles in articles %}
+        <li class="list-group-item"><a href="/article/{{ articles.id }}">{{ articles.id }} - {{ articles.title }} </a></li>
+        <hr>
+    {% endfor %}
+</ul>
+
+{% else %}
+    <h5 class="alert alert-danger">MAKALE BULUNAMADI..</h5>
+{% endif %}
+
+{% endblock %}

@@ -5,7 +5,7 @@
 # -------------------------------------------- IMPORT AREA --------------------------------------------------------
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
-from wtforms import Form, BooleanField, StringField, PasswordField, validators
+from wtforms import Form, BooleanField, StringField, PasswordField, validators, TextAreaField
 from passlib.hash import sha256_crypt
 from functools import wraps
 # -----------------------------------------------------------------------------------------------------------------
@@ -27,6 +27,13 @@ class LoginForm(Form):
     username = StringField("Kullanıcı Adı")
     password = PasswordField("Parola")
 # -----------------------------------------------------------------------------------------------------------------
+
+# ------------------------------------------ ARTICLE FORM -------------------------------------------------------
+class ArticleForm(Form):
+    title = StringField("BAŞLIK", validators=[validators.Length(min=5, max=60)])
+    content = TextAreaField("İÇERİK", validators=[validators.Length(min=40)])
+# -----------------------------------------------------------------------------------------------------------------
+
 
 app = Flask(__name__)
 app.secret_key = "hwblog"
@@ -170,13 +177,20 @@ def logout():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
-# -----------------------
+    cursor = mysql.connection.cursor()
 
-# EDUCATIONS ------------
-@app.route("/educations")
-def educations():
-    return render_template("educations.html")
+    sorgu = "Select * from articles where author = %s"
+
+    result = cursor.execute(sorgu, (session["username"],))
+
+    if result > 0:
+        articles = cursor.fetchall()
+
+        return render_template("dashboard.html", articles = articles)
+    else:
+        return render_template("dashboard.html")
+
+    return render_template("dashboard.html")
 # -----------------------
 
 # DETAIL ----------------
@@ -184,6 +198,70 @@ def educations():
 def detail(id):
     return "Instructor " + id 
 # -----------------------------------------------------------------------------------------------------------------
+
+
+# ARTICLE ----------------
+@app.route("/article/<string:id>")
+def article(id):
+    cursor = mysql.connection.cursor()
+
+    sorgu = "Select * from articles where id= %s"
+
+    result = cursor.execute(sorgu, (id,))
+
+    if result > 0:
+        article = cursor.fetchone()
+
+        return render_template("article.html", article = article)
+    else:
+        return render_template("article.html")
+
+    return render_template("article.html")
+# -----------------------------------------------------------------------------------------------------------------
+
+# ARTICLES ----------------
+@app.route("/articles")
+def articles():
+    cursor = mysql.connection.cursor()
+
+    sorgu = "Select * from articles"
+
+    result = cursor.execute(sorgu)
+
+    if result > 0:
+        articles = cursor.fetchall()
+
+        return render_template("articles.html", articles = articles)
+    else:
+        return render_template("articles.html")
+
+    return render_template("articles.html")
+# -----------------------------------------------------------------------------------------------------------------
+
+
+# ADD ARTICLE -----------
+@app.route("/addarticle", methods = ["GET", "POST"])
+def addarticle():
+    form = ArticleForm(request.form)
+
+    if request.method == "POST" and form.validate():
+        title = form.title.data
+        content = form.content.data
+
+        cursor = mysql.connection.cursor()
+        sorgu = "Insert into articles(title, author, content) VALUES(%s, %s, %s)"
+
+        cursor.execute(sorgu, (title, session["username"], content))
+
+        mysql.connection.commit()
+
+        cursor.close()
+
+        flash("Makale Başarıyla Eklendi..", "success")
+
+        return redirect(url_for("dashboard"))
+    return render_template("addarticle.html", form=form)
+# -----------------------
 
 
 if __name__ == "__main__":

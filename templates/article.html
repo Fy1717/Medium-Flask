@@ -1,0 +1,20 @@
+{% extends "layout.html" %} {% block body %}
+{% if article %}
+
+
+<div class="jumbotron text-center">
+    <h3>MAKALE</h3>
+    <small>YAZAR: {{article.author}}</small>
+    <small>TARİH: {{article.created_date}}</small>
+</div>
+
+
+<h4>{{ article.title}}</h4>
+<hr>
+<p>{{ article.content }}</p>
+
+{% else %}
+    <h5 class="alert alert-danger">MAKALE BULUNAMADI..</h5>
+{% endif %}
+
+{% endblock %}
