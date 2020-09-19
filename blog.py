@@ -263,6 +263,27 @@ def addarticle():
     return render_template("addarticle.html", form=form)
 # -----------------------
 
+# DELETE ARTICLE -----------
+@app.route("/delete/<string:id>")
+@login_required
+def delete(id):
+    cursor = mysql.connection.cursor()
+    sorgu = "Select * from articles where author = %s and id = %s"
+    result = cursor.execute(sorgu, (session["username"], id))
+
+    if result > 0:
+        sorgu2 = "Delete from articles where id = %s"
+
+        cursor.execute(sorgu2, (id,))
+
+        mysql.connection.commit()
+
+        return redirect(url_for("dashboard"))
+    else:
+        flash("Makaleye ulaşılamadı", "danger")
+
+        return redirect(url_for("index"))
+# -----------------------
 
 if __name__ == "__main__":
     app.run(debug = True)
