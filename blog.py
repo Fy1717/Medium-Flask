@@ -34,7 +34,6 @@ class ArticleForm(Form):
     content = TextAreaField("İÇERİK", validators=[validators.Length(min=40)])
 # -----------------------------------------------------------------------------------------------------------------
 
-
 app = Flask(__name__)
 app.secret_key = "hwblog"
 
@@ -91,12 +90,12 @@ def login_required(f):
             return redirect(url_for("login"))
     
     return decorated_function
-
+#-----------------------------------------------------------------------------------------------------------------
 # ABOUT -----------------
 @app.route("/about")
 def about():
     return render_template("about.html")
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 # REGISTER --------------
 @app.route("/register", methods = ["GET", "POST"])
@@ -124,7 +123,7 @@ def register():
         return redirect(url_for("login"))
     else:
         return render_template("register.html", form = form)
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 # LOGIN -----------------
 @app.route("/login", methods = ["GET", "POST"])
@@ -163,7 +162,7 @@ def login():
 
 
     return render_template("login.html", form = form)
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 # LOGOUT ----------------
 @app.route("/logout")
@@ -171,7 +170,7 @@ def logout():
     session.clear()
 
     return redirect(url_for("index"))
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 # DASHBOARD -------------
 @app.route("/dashboard")
@@ -191,14 +190,13 @@ def dashboard():
         return render_template("dashboard.html")
 
     return render_template("dashboard.html")
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 # DETAIL ----------------
 @app.route("/instructors/<string:id>")
 def detail(id):
     return "Instructor " + id 
 # -----------------------------------------------------------------------------------------------------------------
-
 
 # ARTICLE ----------------
 @app.route("/article/<string:id>")
@@ -261,7 +259,7 @@ def addarticle():
 
         return redirect(url_for("dashboard"))
     return render_template("addarticle.html", form=form)
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
 # DELETE ARTICLE -----------
 @app.route("/delete/<string:id>")
@@ -283,9 +281,9 @@ def delete(id):
         flash("Makaleye ulaşılamadı", "danger")
 
         return redirect(url_for("index"))
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
 
-# ADD ARTICLE -----------
+# UPDATE ARTICLE -----------
 @app.route("/edit/<string:id>", methods = ["GET", "POST"])
 def update(id):
     form = ArticleForm(request.form)
@@ -321,7 +319,32 @@ def update(id):
 
         flash("Makale başarıyla güncellendi", "success")
     return redirect(url_for("dashboard"))
-# -----------------------
+# -----------------------------------------------------------------------------------------------------------------
+
+# SEARCH ARTICLE -----------
+@app.route("/search", methods = ["GET", "POST"])
+def search():
+    if request.method == "GET":
+        return redirect(url_for("index"))
+    else:
+        keyword = request.form.get("keyword")
+
+        cursor = mysql.connection.cursor()
+
+        sorgu = "Select * from articles where title like '%" + keyword + "%'"
+
+        result = cursor.execute(sorgu)
+
+        if result == 0:
+            flash("Aramanıza uygun makale bulunamadı...", "danger")
+
+            return redirect(url_for("articles"))
+        else: 
+            flash("Arama sonuçları listelendi...", "success")
+
+            articles = cursor.fetchall()
+
+            return render_template("articles.html", articles = articles)
 
 if __name__ == "__main__":
     app.run(debug = True)

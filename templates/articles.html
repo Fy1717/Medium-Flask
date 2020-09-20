@@ -1,14 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="jumbotron text-center">
-    <h3>Anasayfa</h3>
-    <p>Eğitimcilerimizin Yazılarını Paylaşabilecekleri Bir Platform</p>
+    <h3>MAKALELER</h3>
+    <p>Alanınızdaki tüm makalelere buradan ulaşabilirsiniz</p>
 </div>
 
-<h5>MAKALELER</h5>
-<hr>
-
 {% if articles %}
+
+<form action="/search" method="POST">
+    <input type="text" name="keyword" class="input-sm" maxlength="64" placeholder="Makale ara..">
+    <button type="submit" class="btn btn-primary">Ara</button>
+</form>
+
+<br>
 
 <ul class="list-group">
     {% for articles in articles %}
