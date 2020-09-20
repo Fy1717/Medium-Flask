@@ -38,10 +38,10 @@ app = Flask(__name__)
 app.secret_key = "hwblog"
 
 # ------------------------------------------ MYSQL CONNECTION -----------------------------------------------------
-app.config["MYSQL_HOST"] = "Fy1717.mysql.pythonanywhere-services.com"
-app.config["MYSQL_USER"] = "Fy1717"
-app.config["MYSQL_PASSWORD"] = ""
-app.config["MYSQL_DB"] = "hwblog"
+app.config["MYSQL_HOST"] = "frknyldz.site"
+app.config["MYSQL_USER"] = "frknyldz21_fy"
+app.config["MYSQL_PASSWORD"] = "furkan123."
+app.config["MYSQL_DB"] = "frknyldz21_hwblog"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
