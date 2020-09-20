@@ -11,7 +11,7 @@
 
 <h4>{{ article.title}}</h4>
 <hr>
-<p>{{ article.content }}</p>
+<p>{{ article.content|safe}}</p>
 
 {% else %}
     <h5 class="alert alert-danger">MAKALE BULUNAMADI..</h5>
