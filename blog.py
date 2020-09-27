@@ -39,8 +39,8 @@ app.secret_key = "hwblog"
 
 # ------------------------------------------ MYSQL CONNECTION -----------------------------------------------------
 app.config["MYSQL_HOST"] = "frknyldz.site"
-app.config["MYSQL_USER"] = "frknyldz21_fy"
-app.config["MYSQL_PASSWORD"] = "furkan123."
+app.config["MYSQL_USER"] = "frknyldz21_frknyldz_wp593"
+app.config["MYSQL_PASSWORD"] = "Punisher17171"
 app.config["MYSQL_DB"] = "frknyldz21_hwblog"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 

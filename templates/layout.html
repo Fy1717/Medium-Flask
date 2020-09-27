@@ -8,12 +8,11 @@
     <title>HW Blog</title>
 </head>
 
-<body>
+<body style="background-color: darkslategrey;">
     {% include "includes/navbar.html" %}
 
     <br><br><br>
-
-    <div class="container">
+    <div class="container" style="background-color: aliceblue;">
         {% include "includes/messages.html" %}
 
         {% block body %} data {% endblock %}
@@ -29,7 +28,8 @@
 <script src="https://cdn.ckeditor.com/4.15.0/standard/ckeditor.js"></script>
 
 
-<script>CKEDITOR.replace('content', {
+<script>
+CKEDITOR.replace('content', {
     allowedContent : true
     });
 </script>
