@@ -8,6 +8,7 @@ from flask_mysqldb import MySQL
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, TextAreaField
 from passlib.hash import sha256_crypt
 from functools import wraps
+import os
 # -----------------------------------------------------------------------------------------------------------------
 
 
