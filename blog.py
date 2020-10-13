@@ -1,12 +1,10 @@
-#!/usr/local/bin/python
-
 #- * -coding: utf - 16 - * -
 
 # -------------------------------------------- IMPORT AREA --------------------------------------------------------
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, BooleanField, StringField, PasswordField, validators, TextAreaField
-from passlib.hash import sha256_crypt
+#from passlib.hash import sha256_crypt
 from functools import wraps
 import os
 # -----------------------------------------------------------------------------------------------------------------
@@ -14,35 +12,36 @@ import os
 
 # ------------------------------------------  REGISTER FORM -------------------------------------------------------
 class RegisterForm(Form):
-    name = StringField("İsim Soyisim", validators=[validators.Length(min=4, max=30)])
-    username = StringField("Kullanıcı Adı", validators=[validators.Length(min=4, max=30)])
-    email = StringField("Email Adresi", validators=[validators.Email(message="Geçerli bir email adresi girin")])
-    password = PasswordField("Parola", validators=[
-        validators.DataRequired(message= "Lütfen bir parola belirleyin"),
-        validators.EqualTo(fieldname= "confirm", message= "Yanlış Parola")])
-    confirm = PasswordField("Parola Doğrula")
+    name = StringField("Name", validators=[validators.Length(min=4, max=30)])
+    surname = StringField("Surname", validators=[validators.Length(min=4, max=30)])
+    username = StringField("Username", validators=[validators.Length(min=4, max=30)])
+    email = StringField("Email", validators=[validators.Email(message="Control it ")])
+    password = PasswordField("Password", validators=[
+        validators.DataRequired(message= "Enter a Password"),
+        validators.EqualTo(fieldname= "confirm", message= "False Password")])
+    confirm = PasswordField("Confirm Password")
 # -----------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------  LOGIN FORM -------------------------------------------------------
 class LoginForm(Form):
-    username = StringField("Kullanıcı Adı")
-    password = PasswordField("Parola")
+    username = StringField("USERNAME")
+    password = PasswordField("PASSWORD")
 # -----------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------ ARTICLE FORM -------------------------------------------------------
 class ArticleForm(Form):
-    title = StringField("BAŞLIK", validators=[validators.Length(min=5, max=60)])
-    content = TextAreaField("İÇERİK", validators=[validators.Length(min=40)])
+    title = StringField("TITLE", validators=[validators.Length(min=5, max=60)])
+    content = TextAreaField("CONTENT", validators=[validators.Length(min=40)])
 # -----------------------------------------------------------------------------------------------------------------
 
 app = Flask(__name__)
 app.secret_key = "hwblog"
 
 # ------------------------------------------ MYSQL CONNECTION -----------------------------------------------------
-app.config["MYSQL_HOST"] = "frknyldz.site"
-app.config["MYSQL_USER"] = "frknyldz21_frknyldz_wp593"
-app.config["MYSQL_PASSWORD"] = "Punisher17171"
-app.config["MYSQL_DB"] = "frknyldz21_hwblog"
+app.config["MYSQL_HOST"] = "localhost"
+app.config["MYSQL_USER"] = "root"
+app.config["MYSQL_PASSWORD"] = ""
+app.config["MYSQL_DB"] = "hwblog"
 app.config["MYSQL_CURSORCLASS"] = "DictCursor"
 
 mysql = MySQL(app)
@@ -87,11 +86,12 @@ def login_required(f):
         if "logged_in" in session:
             return f(*args, **kwargs)
         else:
-            flash("Öncelikle giriş yapmanız gerekiyor", "danger")
+            flash("Please Login", "danger")
             return redirect(url_for("login"))
     
     return decorated_function
 #-----------------------------------------------------------------------------------------------------------------
+
 # ABOUT -----------------
 @app.route("/about")
 def about():
@@ -105,9 +105,12 @@ def register():
 
     if request.method == "POST" and form.validate():
         name = form.name.data
+        surname = form.surname.data
         username = form.username.data
         email = form.email.data
         password = form.password.data
+
+        name = name + ' ' + surname
 
         cursor = mysql.connection.cursor()
 
@@ -119,7 +122,7 @@ def register():
 
         cursor.close()
 
-        flash("KAYIT BAŞARILI..", "success")
+        flash("Successfully Register", "success")
 
         return redirect(url_for("login"))
     else:
@@ -135,6 +138,9 @@ def login():
         username = form.username.data
         password = form.password.data
 
+        print('USERNAME --> ' + username)
+        print('PASSWORD --> ' + password)
+
         cursor = mysql.connection.cursor()
         sorgu = "Select * From users where username = %s"
 
@@ -145,19 +151,19 @@ def login():
             real_password = data["password"]
 
             if password == real_password:
-                flash("Giriş Başarılı..", "success")
+                flash("Successfully Login..", "success")
 
                 session["logged_in"] = True
                 session["username"] = username
                 
                 return redirect(url_for("index"))
             else:
-                flash("Kullanıcı Bilgilerini Kontrol Ediniz..", "danger")
+                flash("Please control user information..", "danger")
 
                 return redirect(url_for("login"))
 
         else:
-            flash("Kullanıcı Bulunamadı..", "danger")
+            flash("User not found..", "danger")
 
             return redirect(url_for("login"))
 
@@ -256,7 +262,7 @@ def addarticle():
 
         cursor.close()
 
-        flash("Makale Başarıyla Eklendi..", "success")
+        flash("Article is added successfully..", "success")
 
         return redirect(url_for("dashboard"))
     return render_template("addarticle.html", form=form)
@@ -279,7 +285,7 @@ def delete(id):
 
         return redirect(url_for("dashboard"))
     else:
-        flash("Makaleye ulaşılamadı", "danger")
+        flash("Article not found", "danger")
 
         return redirect(url_for("index"))
 # -----------------------------------------------------------------------------------------------------------------
@@ -296,7 +302,7 @@ def update(id):
         result = cursor.execute(sorgu, (id, session["username"]))
 
         if result == 0:
-            flash("HATA!", "danger")
+            flash("DANGER!", "danger")
             return redirect(url_for("index"))
         else:
             article = cursor.fetchone()
@@ -318,7 +324,7 @@ def update(id):
 
         mysql.connection.commit()
 
-        flash("Makale başarıyla güncellendi", "success")
+        flash("Article has been updated successfully", "success")
     return redirect(url_for("dashboard"))
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -337,11 +343,11 @@ def search():
         result = cursor.execute(sorgu)
 
         if result == 0:
-            flash("Aramanıza uygun makale bulunamadı...", "danger")
+            flash("Article is not found...", "danger")
 
             return redirect(url_for("articles"))
         else: 
-            flash("Arama sonuçları listelendi...", "success")
+            flash("Successful...", "success")
 
             articles = cursor.fetchall()
 

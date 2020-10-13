@@ -3,35 +3,31 @@
 {% block body %}
 {% from "includes/formhelpers.html" import render_field %}
 
-<div style="background-color: #ffc107">
-  <div class="card border-warning mb-3 container"
-    style="max-width: 35%;
-      max-height: 100%;
-      background-color: white;
-      top: 100px;
-      border-radius: 10%;">
+<div class="card border-warning mb-3 container"
+  style="max-width: 35%;
+    max-height: 100%;
+    background-color: white;
+    top: 100px;
+    border-radius: 10%;">
 
-    <br>
-    <div class="card-header " style="padding-left: 42%;" >Login Page</div>
-    
-    <div class="card-body text-warning">
-      <form method="post" class="form-signin">
-        <label for="inputEmail" class="sr-only">{{ render_field(form.username) }}</label>
-        <input type="email" id="inputEmail" class="form-control" placeholder="Email address">
+  <br>
+  <div class="card-header " style="padding-left: 42%;" >Login Page</div>
+  
+  <div class="card-body text-warning">
+    <form method="post" class="form-signin">
+        {{ render_field(form.username) }}
+      <br>
+        {{ render_field(form.password) }}
+                
+      <div class="checkbox mb-2">
         <br>
-        <label for="inputPassword" class="sr-only">{{ render_field(form.password) }}</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Password">
-          
-        <div class="checkbox mb-3" style="margin-left: 60%;">
-          <br>
-          <label>
-            <input  type="checkbox" value="remember-me"> Remember me
-          </label>
-        </div>
+        <label>
+          <input  type="checkbox" value="remember-me"> Remember me
+        </label>
+      </div>
 
-        <button class="btn btn-lg btn-warning btn-block" type="submit">Login</button>
-    </form>
-    </div>
+      <button class="btn btn-lg btn-warning btn-block" type="submit">Login</button>
+  </form>
   </div>
 </div>
 
