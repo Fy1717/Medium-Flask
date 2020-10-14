@@ -199,10 +199,23 @@ def dashboard():
     return render_template("dashboard.html")
 # -----------------------------------------------------------------------------------------------------------------
 
-# DETAIL ----------------
-@app.route("/instructors/<string:id>")
-def detail(id):
-    return "Instructor " + id 
+# Instructors ------------
+@app.route("/leagues")
+def instructors():
+    cursor = mysql.connection.cursor()
+
+    sorgu = "Select * from users"
+
+    result = cursor.execute(sorgu)
+
+    if result > 0:
+        instructors = cursor.fetchall()
+
+        return render_template("leagues.html", instructors = instructors)
+    else:
+        return render_template("leagues.html")
+
+    return render_template("leagues.html")
 # -----------------------------------------------------------------------------------------------------------------
 
 # ARTICLE ----------------

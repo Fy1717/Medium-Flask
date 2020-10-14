@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block body %}
+
+{% if instructors %}
+
+<div style="width: 500px; margin-top: 5%; margin-left: 25%; float: 50px; border: 2px solid rgb(24, 23, 23); border-radius: 10px">
+
+<h2 style="color: rgb(179, 90, 31); margin-left: 35%">GOLDS</h2>
+<ul class="list-group" style="width: 400px; margin-left: 10%">
+    {% for instructor in instructors  %}
+        {% if instructor.point > 99 and instructor.point < 150 %}
+            <li class="list-group-item"> <b> {{ instructor.name }}   --> POINT : {{ instructor.point }} </b></li>
+            <br>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h2 style="color: rgb(106, 145, 150); margin-left: 34%">SILVERS</h2>
+<ul class="list-group" style="width: 400px; margin-left: 10%">
+    {% for instructor in instructors  %}
+        {% if instructor.point > 49 and instructor.point < 100 %}
+            <li class="list-group-item"> <b> {{ instructor.name }}   --> POINT : {{ instructor.point }} </b></li>
+            <br>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+<hr>
+<h2 style="color: rgb(29, 11, 95); margin-left: 37%">IRONS</h2>
+<ul class="list-group" style="width: 400px; margin-left: 10%">
+    {% for instructor in instructors  %}
+        {% if instructor.point < 50 %}
+            <li class="list-group-item"> <b> {{ instructor.name }}   --> POINT : {{ instructor.point }} </b></li>
+            <br>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+</div>
+
+
+{% endif %}
+
+{% endblock %}
