@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <div class="jumbotron text-center">
-    <h3>LEARN TEACH AND REPEAT</h3>
+    <h3>LEARN, TEACH AND REPEAT</h3>
 
     <hr>
     <img src="https://miro.medium.com/max/3840/1*U-R58ahr5dtAvtSLGK2wXg.png" width="1000" height="500"/>
@@ -30,22 +30,6 @@
       <p><a class="btn btn-secondary" href="/about" role="button">DETAYLAR >></a></p>
     </div>
   </div>
-
-<h5> Our Educations </h5>
-
-<ul>
-    {% for education in educations %}
-        <li>{{education}}</li>
-    {% endfor %}
-</ul>
-
-<hr>
-<h5>AUTHORS</h5>
-<ul>
-    {% for instructor in instructors %}
-        <li>{{ instructor.id }} - {{ instructor.name }} | {{instructor.profession}}</li>
-    {% endfor %}
-</ul>
 
 <hr>
 

@@ -1,0 +1,153 @@
+{% extends "layout.html" %} {% block body %}
+
+{% if user %}
+
+<div class="card mb-3" style="max-width: 1100px; margin-top: 8%;">
+<div class="row no-gutters">
+    <div class="col-md-3">
+        <img src="{{user.photo}}" width="300" height="300" style="margin-left: 7%; margin-top: 17%; border: 2px solid black; border-radius: 50px 50px">
+        
+        <br>
+        <br>
+        <h3 style="margin-left: 43%;">{{ user.username }}</h3>
+        {% if user.admin == 1 %}
+            <p style="margin-left: 35%; margin-top: 5%"><small class="text-muted">Admin Yetkisi Onaylandı</small></p>
+        {% endif %}
+    </div>
+    <div class="col-md-9">
+    <div class="card-body">
+        <h2 class="card-title" style="margin-left: 33%; margin-top: 3%"><b>{{ user.name }}</b></h2>
+        <hr style="margin-left: 3%; margin-right: 3%">
+        <br>
+        <h5 style="margin-left: 10%;"> {{user.job}} </h5>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> {{user.education}} </h5>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> Website : {{user.website}} </h5>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> LinkedIn : {{user.linkedinurl}} </h5>
+        <br>
+        <hr style="margin-left: 3%; margin-right: 3%">
+        <br>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> 
+            LEAGUE: {{user.league}} ---------------------------------------- POINT: {{user.point}}
+        </h5>
+    </div>
+    </div>
+</div>
+
+
+<br>
+
+<nav class="navbar navbar-toggleable navbar-inverse bg-inverse">
+    <ul class="navbar-nav mr-auto" style="margin-left: 33%;">
+        <li class="nav-item resultActiveConnections" style="padding: 5px">
+            <a class="nav-link">CONNECTIONS
+                {% if resultActiveConnectionsCount %}
+                    <span class="badge" 
+                        style="position: absolute;
+                            padding: 3px 7px;
+                            border-radius: 50%;
+                            background: red;
+                            color: white;"
+                    > 
+                        {{ resultActiveConnectionsCount }}
+                    </span> 
+                {% endif %}
+            </a>
+        </li>
+
+        <li class="nav-item notifications" style="padding: 5px">
+            <a class="nav-link"> NOTIFICATIONS 
+                <span class="badge" 
+                        style="position: absolute;
+                            padding: 3px 7px;
+                            border-radius: 50%;
+                            background: red;
+                            color: white;"
+                    > 
+                        0
+                </span> 
+            </a>
+        </li>
+
+        <li class="nav-item requests" style="padding: 5px">
+            <a class="nav-link"> REQUESTS 
+                {% if requestedUsersCount %}
+                    <span class="badge" 
+                        style="position: absolute;
+                            padding: 3px 7px;
+                            border-radius: 50%;
+                            background: red;
+                            color: white;"
+                    > 
+                        {{ requestedUsersCount }}
+                    </span> 
+                {% endif %}
+            </a> 
+        </li>
+    </ul>
+</nav>
+
+<div class="bottomBanner">
+    <ul class="list-group resultActiveConnections" style="display: none">
+        <br>
+        {% if resultActiveConnections %}
+            {% for activeConnection in resultActiveConnections %}
+                <li class="list-group-item">  
+                    <img src="{{ activeConnection.photo }}" width="80" height="80" style="margin-left: 33%; border: 2px solid black; border-radius: 50px 50px"> 
+                    <strong style="margin-left: 3%;"> {{ activeConnection.username }} </strong> 
+                    <strong style="margin-left: 3%;"> {{ activeConnection.name }} </strong>
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+
+    <ul class="list-group notifications" style="display: none">
+        <br>
+        <h3 style="text-align: center"><strong> THERE IS NO NOTIFICATION </strong></h3>
+    </ul>
+
+    <ul class="list-group requests" style="display: none">
+        {% if requestedUsers %}
+            {% for requestedUser in requestedUsers %}
+                <li class="list-group-item">  
+                    <img src="{{ requestedUser.photo }}" width="80" height="80" style="margin-left: 23%; border: 2px solid black; border-radius: 50px 50px"> 
+                    <strong style="margin-left: 3%;"> {{ requestedUser.username }} </strong> 
+                    <strong style="margin-left: 3%;"> {{ requestedUser.name }} </strong> 
+                    <a type="submit" class="btn btn-success" style="margin-left: 9%;" href="/profile/accept/{{requestedUser.id}}"> ACCEPT </a>
+                    <a type="submit" class="btn btn-danger" style="margin-left: 3%;" href="/profile/reject/{{requestedUser.id}}"> REJECT </a>
+                </li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+</div>
+
+<br>
+<br>
+<br>
+
+</div>
+
+<br>
+<br>
+<br>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+    $("nav ul li:not(.active)").click(function() {
+        $("nav ul li").removeClass('active');
+        $(this).addClass('active');
+
+        var activedArea = ($(this).attr('class') || '').replace('active', '').replace('nav-item', '').trim();
+
+        $(".bottomBanner ul").css('display', 'none');
+        $(".bottomBanner ul." + activedArea).css('display', 'block');
+    });
+
+</script>
+
+    
+{% endif %}
+
+
+{% endblock %}

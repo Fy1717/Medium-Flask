@@ -1,0 +1,51 @@
+{% extends "layout.html" %} {% block body %}
+
+{% if instructor %}
+
+<div class="card mb-3" style="max-width: 1100px; margin-top: 8%;">
+<div class="row no-gutters">
+    <div class="col-md-3">
+        <img src="{{ instructor.photo }}" class="card-img" style="margin: 7%;">
+
+        <h3 style="margin-left: 43%;">{{ instructor.username }}</h3>
+        {% if instructor.admin == 1 %}
+            <p style="margin-left: 35%; margin-top: 5%"><small class="text-muted">Admin Yetkisi Onaylandı</small></p>
+        {% endif %}
+    </div>
+    <div class="col-md-9">
+    <div class="card-body">
+        <h2 class="card-title" style="margin-left: 33%; margin-top: 3%">
+            <b>{{ instructor.name }}</b>
+            
+            {% if status and status.status == 'waiting' %}
+                <a class="btn btn-success disable" style="margin-left: 10%; background-color: black">
+                    REQUESTED
+                </a> 
+            {% elif status %}
+                <a class="btn btn-success" style="margin-left: 10%" href="/connection/request/{{instructor.id}}">
+                    FOLLOW
+                </a>
+
+            {% endif %} 
+        </h2>
+        
+        <hr style="margin-left: 3%; margin-right: 3%">
+        <br>
+        <h5 style="margin-left: 10%;"> JOB: {{ instructor.job }} </h5>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> Education: {{ instructor.education }} </h5>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> Website : {{ instructor.website }}</h5>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> LinkedIn : {{ instructor.linkedinurl }}</h5>
+        <br>
+        <hr style="margin-left: 3%; margin-right: 3%">
+        <br>
+        <h5 style="margin-left: 10%; margin-top: 1%; margin-bottom: 1%;"> 
+            LEAGUE: {{instructor.league}} ---------------------------------------- POINT: {{instructor.point}}
+        </h5>
+    </div>
+    </div>
+</div>
+</div>
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="jumbotron text-center">
+    <h3>YAZARLAR</h3>
+</div>
+
+{% if users %}
+
+<form action="/search" method="POST">
+    <input type="text" name="keyword" class="input-sm" maxlength="64" placeholder="Makale ara..">
+    <button type="submit" class="btn btn-primary">Ara</button>
+</form>
+
+<br>
+
+<ul class="list-group">
+    {% for user in users %}
+        <li class="list-group-item"><a href="/users/{{ user.id }}">{{ user.id }} - {{ user.name }} </a></li>
+        <hr>
+    {% endfor %}
+</ul>
+
+{% endblock %}

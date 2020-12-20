@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block body %}
+
+{% if instructors %}
+
+<form action="/searchInstructor" method="POST" style="margin-left: 33%; margin-top: 5%;">
+    <input type="text" name="keyword" class="input-sm" maxlength="64" placeholder="an instructor..">
+    <button type="submit" class="btn btn-primary">SEARCH</button>
+</form>
+
+<div style="width: 500px; margin-top: 5%; margin-left: 25%; float: 50px; border: 2px solid rgb(24, 23, 23); border-radius: 10px">
+
+<div>
+
+<h2 style="color: rgb(179, 90, 31); margin-left: 35%">GOLDS</h2>
+<ul class="list-group" style="width: 400px; margin-left: 10%">
+    {% for instructor in instructors  %}
+        {% if instructor.point > 99 and instructor.point < 150 %}
+            <a class="list-group-item" href="/instructor/{{instructor.id}}" style="color: black;"> 
+                <img src="{{ instructor.photo }}" width="80" height="80" style="border: 2px solid black; border-radius: 50px 50px">
+                <b style="margin-left: 5%"> {{ instructor.name.upper() }}</b>
+                <b style="margin-left: 15%">{{ instructor.point }}</b>             
+            </a>
+
+            <br>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+<hr>
+
+<h2 style="color: rgb(106, 145, 150); margin-left: 34%">SILVERS</h2>
+<ul class="list-group" style="width: 400px; margin-left: 10%">
+    {% for instructor in instructors  %}
+        {% if instructor.point > 49 and instructor.point < 100 %}
+            <a class="list-group-item" href="/instructor/{{instructor.id}}" style="color: black;"> 
+                <img src="{{ instructor.photo }}" width="80" height="80" style="border: 2px solid black; border-radius: 50px 50px">
+                <b style="margin-left: 5%"> {{ instructor.name.upper() }}</b>
+                <b style="margin-left: 15%">{{ instructor.point }}</b> 
+            </a>
+
+            <br>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+<hr>
+<h2 style="color: rgb(29, 11, 95); margin-left: 37%">IRONS</h2>
+<ul class="list-group" style="width: 400px; margin-left: 10%">
+    {% for instructor in instructors  %}
+        {% if instructor.point < 50 %}
+            <a class="list-group-item" href="/instructor/{{instructor.id}}" style="color: black;"> 
+                <img src="{{ instructor.photo }}" width="80" height="80" style="border: 2px solid black; border-radius: 50px 50px">
+                <b style="margin-left: 5%";> {{ instructor.name.upper() }}</b>
+                <b style="margin-left: 15%";>{{ instructor.point }}</b> 
+            </a>
+
+            <br>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+</div>

@@ -52,31 +52,7 @@ mysql = MySQL(app)
 # MAIN ------------------
 @app.route("/")
 def index():
-    educations = ["Flutter", "Python", "Xamarin", "Javascript", "Firebase"]
-
-    instructors = [{
-        "id": 1,
-        "name": "Furkan YILDIZ",
-        "profession": "PYTHON"
-    }, {
-        "id": 2,
-        "name": "Kadriye MACIT",
-        "profession": "FLUTTER"
-    }, {
-        "id": 3,
-        "name": "Beyza INCE",
-        "profession": "ARTIFICAL INTELLIGENCE"
-    }, {
-        "id": 4,
-        "name": "Oguz DEMIR",
-        "profession": "JAVASCRIPT"
-    }, {
-        "id": 5,
-        "name": "Alp YURTSEVEN",
-        "profession": "ASP .NET"
-    }]
-
-    return render_template("index.html", instructors=instructors, educations=educations)
+    return render_template("index.html")
 # -----------------------
 
 # LOGIN DECORATOR -------
@@ -138,9 +114,6 @@ def login():
         username = form.username.data
         password = form.password.data
 
-        print('USERNAME --> ' + username)
-        print('PASSWORD --> ' + password)
-
         cursor = mysql.connection.cursor()
         sorgu = "Select * From users where username = %s"
 
@@ -199,23 +172,53 @@ def dashboard():
     return render_template("dashboard.html")
 # -----------------------------------------------------------------------------------------------------------------
 
-# Instructors ------------
-@app.route("/leagues")
-def instructors():
+# PROFILE ------------
+@app.route("/profile")
+@login_required
+def profile():
     cursor = mysql.connection.cursor()
-
-    sorgu = "Select * from users"
-
-    result = cursor.execute(sorgu)
+    cursor2 = mysql.connection.cursor()
+    sorgu = "Select * From users where username = %s"
+    result = cursor.execute(sorgu, (session["username"],))
 
     if result > 0:
-        instructors = cursor.fetchall()
+        # MEVCUT KULLANICI VE ID SI------
+        user = cursor.fetchone()
+        sorguUserId = "Select id from users where username= %s"
+        resultUserId = cursor.execute(sorguUserId, (session["username"],))
+        # -----------------------
 
-        return render_template("leagues.html", instructors = instructors)
-    else:
-        return render_template("leagues.html")
+        # MEVCUT KULLANICININ BAGLANTILARI ------
+        sorguActiveConnections = "Select * from users where id in (Select user_from from connections as c where c.user_to = %s and c.status = 'approved') or id in (Select user_to from connections as c where c.user_from = %s and c.status = 'approved')"
+        resultActiveConnectionsCount = cursor2.execute(sorguActiveConnections, (resultUserId, resultUserId))
+        # -----------------------
 
-    return render_template("leagues.html")
+        # MEVCUT KULLANICIYA GELEN BAGLANTI ISTEKLERI ------
+        sorguForConnectionWaiting = "Select * from users where id in (Select user_from from connections as c where c.user_to = %s and c.status = %s)"
+        resultWaiting = cursor.execute(sorguForConnectionWaiting, (resultUserId, 'waiting',))
+        # -----------------------
+
+        if resultWaiting > 0:
+            requestedUsers = cursor.fetchall()
+
+            if resultActiveConnectionsCount > 0:
+                resultActiveConnections = cursor2.fetchall()
+                
+                return render_template("profile.html", user = user, requestedUsers = requestedUsers, requestedUsersCount = resultWaiting, resultActiveConnections = resultActiveConnections, resultActiveConnectionsCount = resultActiveConnectionsCount)
+ 
+            return render_template("profile.html", user = user, requestedUsers = requestedUsers, requestedUsersCount = resultWaiting) 
+        
+        if resultActiveConnectionsCount > 0:
+            resultActiveConnections = cursor2.fetchall()
+
+            return render_template("profile.html", user = user, resultActiveConnections = resultActiveConnections, resultActiveConnectionsCount = resultActiveConnectionsCount)
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return render_template("profile.html", user = user)
+
+    return render_template("profile.html")
 # -----------------------------------------------------------------------------------------------------------------
 
 # ARTICLE ----------------
@@ -255,7 +258,6 @@ def articles():
 
     return render_template("articles.html")
 # -----------------------------------------------------------------------------------------------------------------
-
 
 # ADD ARTICLE -----------
 @app.route("/addarticle", methods = ["GET", "POST"])
@@ -341,6 +343,32 @@ def update(id):
     return redirect(url_for("dashboard"))
 # -----------------------------------------------------------------------------------------------------------------
 
+# SEARCH INSTRUCTOR -----------
+@app.route("/searchInstructor", methods = ["GET", "POST"])
+def searchInstructor():
+    if request.method == "GET":
+        return redirect(url_for("index"))
+    else:
+        keyword = request.form.get("keyword")
+
+        cursor = mysql.connection.cursor()
+
+        sorgu = "Select * from users where name like '%" + keyword + "%'"
+
+        result = cursor.execute(sorgu)
+
+        if result == 0:
+            flash("Instructor is not found...", "danger")
+
+            return redirect(url_for("instructors"))
+        else: 
+            flash("Successful...", "success")
+
+            instructors = cursor.fetchall()
+
+            return render_template("instructors.html", instructors = instructors)
+# -----------------------------------------------------------------------------------------------------------------
+
 # SEARCH ARTICLE -----------
 @app.route("/search", methods = ["GET", "POST"])
 def search():
@@ -365,6 +393,166 @@ def search():
             articles = cursor.fetchall()
 
             return render_template("articles.html", articles = articles)
+# -----------------------------------------------------------------------------------------------------------------
+
+# INSTRUCTORS ------------
+@app.route("/instructors")
+def instructors():
+    cursor = mysql.connection.cursor()
+
+    sorgu = "Select * from users"
+
+    result = cursor.execute(sorgu)
+
+    if result > 0:
+        instructors = cursor.fetchall()
+
+        return render_template("instructors.html", instructors = instructors)
+    else:
+        return render_template("instructors.html")
+
+    return render_template("instructors.html")
+# -----------------------------------------------------------------------------------------------------------------
+
+# INSTRUCTOR -----------
+@app.route("/instructor/<string:id>")
+def instructor(id):
+    cursor = mysql.connection.cursor()
+    cursor1 = mysql.connection.cursor()
+    cursor2 = mysql.connection.cursor()
+
+    sorgu = "Select * From users where id = %s"
+    sorguUserId = "Select id from users where username= %s"
+    sorgu2 = "Select status from connections where user_from= %s and user_to= %s"
+
+    resultSessionUser = cursor.execute(sorguUserId, (session["username"],))
+
+    if resultSessionUser > 0:
+        # MEVCUT KULLANICI VE ID SI------
+        user = cursor.fetchone()
+        resultSessionUserId = cursor.execute(sorguUserId, (session["username"],))
+        # -----------------------
+
+        if int(resultSessionUserId) == int(id):
+            return redirect(url_for("profile"))
+        else:
+            result = cursor1.execute(sorgu, (id,))
+
+            if result > 0:  
+                instructor = cursor1.fetchone()
+                resultStatus = cursor2.execute(sorgu2, (id, resultSessionUserId))
+
+                if resultStatus > 0:
+                    status = cursor2.fetchone()
+
+                    return render_template("instructor.html", instructor = instructor, status = status)
+                else:
+                    return render_template("instructor.html", instructor = instructor)
+            else:
+                return render_template("instructor.html")
+
+    return render_template("instructor.html")
+# -----------------------------------------------------------------------------------------------------------------
+
+# SEND FRIENDSHIP CONNECTION REQUEST -----------
+@app.route("/connection/request/<string:id>", methods = ["GET", "POST"])
+@login_required
+def sendConnectionRequest(id):
+    cursor = mysql.connection.cursor()
+    sorgu = "Select * From users where username = %s"
+    result = cursor.execute(sorgu, (session["username"],))
+
+    if result > 0:
+        # MEVCUT KULLANICI VE ID SI------
+        user = cursor.fetchone()
+        sorguUserId = "Select id from users where username= %s"
+        resultUserId = cursor.execute(sorguUserId, (session["username"],))
+        # -----------------------
+
+        cursor1 = mysql.connection.cursor()
+        sorgu1 = "Select * from connections where user_from= %s and user_to= %s"
+        cursor1.execute(sorgu1, (resultUserId, id))
+        result = cursor1.execute(sorgu1, (id,))
+
+        if result > 0:
+            sorgu2 = "Update connections Set status= %s where user_from= %s and user_to= %s"
+            cursor1.execute(sorgu2, ('waiting', resultUserId, id))
+
+            flash("Request is sent successfully..", "success")
+        else:
+            sorgu2 = "Insert into connections(user_from, user_to, status) VALUES(%s, %s, %s)"
+            cursor.execute(sorgu2, (resultUserId, id, 'waiting'))
+
+        mysql.connection.commit()
+        cursor.close()
+
+        flash("Request is sent successfully..", "success")
+
+    return render_template("instructor.html")
+
+# -----------------------------------------------------------------------------------------------------------------
+
+# ACCEPT FRIENDSHIP REQUEST -----------
+@app.route("/profile/accept/<string:id>", methods = ["GET", "POST"])
+@login_required
+def acceptFriendShip(id):
+    cursor = mysql.connection.cursor()
+    cursor1 = mysql.connection.cursor()
+    sorgu = "Select * From users where username = %s"
+    result = cursor.execute(sorgu, (session["username"],))
+
+    if result > 0:
+        # MEVCUT KULLANICI VE ID SI------
+        user = cursor.fetchone()
+        sorguUserId = "Select id from users where username= %s"
+        resultUserId = cursor.execute(sorguUserId, (session["username"],))
+        # -----------------------
+
+        sorgu1 = "Select * from connections where user_from= %s and user_to= %s and status= 'waiting'"
+        result1 = cursor1.execute(sorgu1, (id, resultUserId))
+
+        if result1 > 0:
+            sorgu2 = "Update connections Set status= %s where user_from= %s and user_to= %s and status= 'waiting'"
+            cursor.execute(sorgu2, ('approved', id, resultUserId))
+
+            flash("Request is accepted successfully..", "success")
+
+        mysql.connection.commit()
+        cursor.close()
+
+    return redirect(url_for("profile"))
+# -----------------------------------------------------------------------------------------------------------------
+
+# REJECT FRIENDSHIP REQUEST -----------
+@app.route("/profile/reject/<string:id>", methods = ["GET", "POST"])
+@login_required
+def rejectFriendShip(id):
+    cursor = mysql.connection.cursor()
+    cursor1 = mysql.connection.cursor()
+    sorgu = "Select * From users where username = %s"
+    result = cursor.execute(sorgu, (session["username"],))
+
+    if result > 0:
+        # MEVCUT KULLANICI VE ID SI------
+        user = cursor.fetchone()
+        sorguUserId = "Select id from users where username= %s"
+        resultUserId = cursor.execute(sorguUserId, (session["username"],))
+        # -----------------------
+
+        sorgu1 = "Select * from connections where user_from= %s and user_to= %s and status= 'waiting'"
+        result1 = cursor1.execute(sorgu1, (id, resultUserId))
+
+        if result1 > 0:
+            sorgu2 = "Update connections Set status= %s where user_from= %s and user_to= %s and status= 'waiting'"
+            cursor.execute(sorgu2, ('rejected', id, resultUserId))
+
+            flash("Request is rejected successfully..", "danger")
+
+        mysql.connection.commit()
+        cursor.close()
+
+    return redirect(url_for("profile"))
+# -----------------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     app.run(debug = True)
